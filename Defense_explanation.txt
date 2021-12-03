@@ -1,0 +1,91 @@
+---------------------------------------------------DFENSE PREPARATION---------------------------------------------------
+	PROJECT OVERVIEW
+1 - How a Virtual Machine works - A virtual machine is basically an emulated environnement that can be of a different OS,
+	allowing you, for example, to test  or run software in Linux or Windows even though your actual OS is MacOS. All of 
+	this without actually switching OS, it's like a computer inside a computer;
+2 - OS choice - I chose Debian because I have no experience with system administration and that was the recommended 
+	one for cases like mine;
+3 - Differences between CentOS and Debian - CentOS is a free dowstream rebuild of the commercial Red Hat Entreprise Linux
+	distribuition, while Debian is the free upstream distribuition that is the base for other distribuitions (including
+	Ubuntu). Debian uses Linux as its kernel (easier for beginners) and CentOS uses Red Hat Linux (more for intermediate
+	users, used for commercial purposes);
+4 - Difference between aptitude and apt - Both are tools to handle package management (installation, removal, search, 
+	etc.). Aptitude is higher-level and uses apt-get as well as other variants. It also has a text-only and an interactive 
+	User Inteface, something apt lacks (restricted to command-line use).
+	APPArmor - Application Armor, it is a Linux kernel security module that allows the system administrator to restrict
+	programs' capabilities with per-program profiles (network access, raw socket access, permission to read,write or 
+	execute files);
+
+	SIMPLE SETUP
+1 - Check there's no graphical environnement at startup;
+2 - A password will be requested (encrypt password);
+3 - Connect with a user (not root). Check the password to make sure it complies with the rules (check with subject);
+4 - Check if the UFW (firewall) is started (sudo ufw status);
+5 - Check the SSH service is started (sudo service ssh status);
+6 - Check the chosen OS (Debian) with (uname -a);
+
+	USER
+1 - Check if a user with my login exists and if he belongs to the groups "sudo" and "user42" (groups daalmeid);
+2 - Check password policy - FIRST: (cat /etc/login.defs | grep "PASS_") for max and min days and warning message; 
+	SECOND: (cat /etc/pam.d/common-password | grep "pam_pwquality.so"): 3 retries, minimum lenght = 10, max repeated 
+	characters = 3, username can't be in the password, enforce for root password (except difok, but it is default) and
+	difok= 7 (at least 7 characters must not be present in previous password);
+3 - Create a new user (sudo adduser <username>); Then creat a group (sudo addgroup evaluating)
+	and add user created to this group (sudo adduser <username> evaluating) and check (groups <username>);
+4 - Password policy reason to be - Periodically changing the password and apllying such variability to them each time
+	makes it much more difficult to be discovered, thus increasing security;
+
+	HOSTNAME AND PARTITIONS
+1 - Check hostname ("hostname");
+2 - Modify hostname - add new user to sudo group (sudo adduser <username> sudo), login with it (sudo login <username>)
+	and modify hostname (sudo vim /etc/hostname) to <username>42 and reboot (sudo reboot); Restore the original 
+	hostname;
+3 - Check partitions - Use the command lsblk;
+4 - LVM explanation - LVM or Logical Volumes Management is a partitioning system that virtualizes storage, allowing a 
+	more flexible approch to disk storage space management. It also allows to not allocate all space at initial setup.
+	LV's can be created, resized or deleted from the command line while Linux is running, without needing to reboot to 
+	make the kernel aware of the changes created in your partitions. You can also extend them over more than one 
+	hard-disk (if you have them) or create a read-only snapshot of the current state of any LVM and revert to it 
+	whenever needed (useful if you want to experiment with the system or before a critical system upgrade in case 
+	something goes wrong). A hard-disk is a lot harder to resize.
+
+	SUDO
+1 - Check if sudo is properly installed in the system ("dpkg -l | grep sudo");
+2 - Value and operations of sudo with examples - Sudo stands for Super User DO and gives the user access to restricted
+	files and operations. Due to their sensibility, some files might be locked to normal users and, if they belong to
+	the sudo group (thus having authorization from the sysadmin), they can use the sudo command to access them. Examples:
+	Access var/log and try to "ls sudo". It won't work, and you will need "sudo ls sudo" to do it. after that, use 
+	command "sudo ls sudo/00/00" to see every sudo command entered and use "sudo cat sudo/00/00/<dir>/log" to see what
+	command was used;
+3 - Rules for the sudo implementation - In the etc/sudoers.d/ directory, a file named sudoconfig was created with the
+	rules stipulated in the subject (show file with cat); -- REVIEW RULES TO EXPLAIN --
+4 - Check /var/log/sudo exists and history of sudo commands, as well as if the file updates with new sudo commands -
+	Already done;
+
+	UFW
+1 - Check if UFW is installed on the machine - "dpkg -l | grep ufw";
+2 - Check if UFW is working properly and list the active rules - "sudo ufw status";
+3 - What is UFW and what is its value - Uncomplicated Firewall gives us a framework for managing netfilter and uses a 
+	command line interface to manipulate the firewall. Basically, it helps create a default deny response to incoming
+	connections who do not use authorized ports;
+4 - Add new rule - sudo allow 8080 --> sudo ufw status --> sudo ufw status numbered --> sudo ufw
+	delete (rule refering to port 8080);
+
+	SSH
+1 - Check if SSH service is installed - dpkg -l | grep openssh-server;
+2 - Check if working properly and only uses port 4242 - sudo service ssh status;
+3 - What is SSH and its value - Secure Shell is a cryptographic network protocol that allows to operate secure services
+	over an unsecured network. Through it, it is possible to (for example) run a remote command line and execute commands,
+	all in a secure way. SSH provides password and public key based authentification and encrypts connections between two
+	network endpoints.
+4 - login with SSH from MacOS terminal and try root - use "ssh <username>@127.0.0.1 -p 4242" --> put password --> "login
+	root";
+
+	SCRIPT MONITORING
+1 - How does the script work;
+2 - Cron - It's a command that allows to schedule tasks so that they are performed automatically (backups, shell scripts,
+	etc.). You can program them to be done daily, weekly, every three months, after 6 p.m., there is a ton of possible
+	configurations;
+3 - Setting up cron - "sudo crontab -e", show the line. the first * refers to minutes and by putting "*/10" it will
+	repeat every 10 minutes. Piping with wall allows it to be printed on every terminal. Alter the 10 to 1 to make it
+	run every minute;

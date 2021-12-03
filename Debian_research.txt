@@ -1,0 +1,44 @@
+-------------------------------------TRYING TO UNDERSTAND THIS PROJECT-------------------------------------
+
+APT - Advanced Package Tool, is a free-software user interface that works with core libraries to install
+	and remove software on Debian and Debian-based Linux Distribuitions. It simplifies the software manage-
+	ment on unix-like computer systems by automating the retrieval, configuration and installation of
+	software packages, either from precompiled files or by compiling source code.
+
+sudo and su - su (substitute user, super user or switch user) allows to login as the root account and do 
+whatever with the system; sudo (substitute user do or super user do) allows to elevate the status of the
+current user to have root privileges temporarily. Once a certain amount of time has passed, hte user has to
+reenter the password to regain root privileges. su is used to switch from one account to another. Without sudo,
+an unauthorized user cannot install, remove or change any piece of software, thus avoiding possible exploitation.
+
+After installing sudo, use "su -l" to restart the environnement with all the acesses of root, instead of inheriting
+the env from the non-sudo user. Then, "adduser daalmeid sudo" to add user to the group. Create group user42 with
+"addgroup user42" and then adduser to new group.
+
+"apt-get install <program>" to install new software, sudo before it if not on root.
+
+After downloading openssh-server, edit ssh_config with sudo vim to change the port to 4242 (from 22);
+
+run "sudo service ssh status" to verify if the port was changed;
+
+UFW - Firewall, you can check its status with "sudo ufw status, enable it with "sudo ufw enable" and allow a
+specific port (like the one attributed to ssh server) with "sudo ufw allow 4242";
+
+https://manpages.debian.org/jessie/sudo/sudoers.5.en.html - sudo.config;
+
+Strong password policy - login.defs to setup expration date for the password, minimum number of days before
+a modification and warning message (7 days);
+
+enforce_for_root - Note that root is not asked for an old password so the checks that compare the old and new 
+password are not performed;
+
+port forwarding rule on VM - settings -> Network -> Advanced -> Port forwarding:
+
+|Name		| Protocol | Host IP (sudo service ssh status) | Host port | Guest IP | Guest port|
+|Random		|	TCP	   |			127.0.0.1			   | 	4242   | 10.0.2.15|    4242	  |
+
+Get host IP : ip a, in front of the first "inet"; Get guest IP : ip a, in front of the second "inet";
+
+top -bn2 --> The -n option is the number of iterations the top command should use before ending. We avoid 
+using the first loop because the metrics we retrieve will be values since boot. Hence, we’ve taken the 
+second iteration.
